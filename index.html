@@ -1,0 +1,373 @@
+import React, { useState } from 'react';
+import { 
+  LayoutDashboard, 
+  TrendingUp, 
+  Users, 
+  CreditCard, 
+  Clock, 
+  ShoppingBag, 
+  AlertCircle,
+  Menu,
+  X,
+  FileText,
+  DollarSign,
+  PieChart
+} from 'lucide-react';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer, 
+  LineChart, 
+  Line, 
+  AreaChart, 
+  Area,
+  PieChart as RePieChart,
+  Pie,
+  Cell
+} from 'recharts';
+
+// --- Veri Setleri ---
+
+const branchRevenueData = [
+  { name: 'A (Yangon)', revenue: 106200.37 },
+  { name: 'B (Mandalay)', revenue: 106197.67 },
+  { name: 'C (Naypyitaw)', revenue: 110568.71 },
+];
+
+const productProfitData = [
+  { name: 'Yiyecek & İçecek', profit: 2673.56 },
+  { name: 'Moda Aksesuarları', profit: 2400.10 }, // Tahmini/Örnek veri
+  { name: 'Elektronik', profit: 2200.40 }, // Tahmini/Örnek veri
+  { name: 'Spor & Seyahat', profit: 1900.20 }, // Tahmini/Örnek veri
+  { name: 'Ev & Yaşam', profit: 1800.50 }, // Tahmini/Örnek veri
+  { name: 'Güzellik', profit: 1500.30 }, // Tahmini/Örnek veri
+];
+
+const genderPreferenceData = [
+  { category: 'Moda', Kadin: 96, Erkek: 40 },
+  { category: 'Yiyecek', Kadin: 90, Erkek: 84 },
+  { category: 'Elektronik', Kadin: 45, Erkek: 86 },
+  { category: 'Güzellik', Kadin: 30, Erkek: 25 }, // En az tercih edilen
+];
+
+const hourlySalesData = [
+  { hour: '10:00', sales: 12000 },
+  { hour: '12:00', sales: 25000 },
+  { hour: '14:00', sales: 18000 },
+  { hour: '16:00', sales: 22000 },
+  { hour: '18:00', sales: 30000 },
+  { hour: '19:00', sales: 39699 }, // Zirve
+  { hour: '20:00', sales: 35000 },
+];
+
+const paymentMethodData = [
+  { name: 'A Şubesi', Ewallet: 37, Cash: 32, Credit: 31 },
+  { name: 'B Şubesi', Ewallet: 34, Cash: 33, Credit: 33 },
+  { name: 'C Şubesi', Ewallet: 30, Cash: 38, Credit: 32 },
+];
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+
+// --- Bileşenler ---
+
+const StatCard = ({ title, value, subtext, icon: Icon, trend }) => (
+  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-start justify-between">
+    <div>
+      <p className="text-sm font-medium text-gray-500">{title}</p>
+      <h3 className="text-2xl font-bold text-gray-800 mt-2">{value}</h3>
+      {subtext && <p className={`text-xs mt-1 ${trend === 'up' ? 'text-green-500' : trend === 'down' ? 'text-red-500' : 'text-gray-400'}`}>{subtext}</p>}
+    </div>
+    <div className="p-3 bg-blue-50 rounded-lg">
+      <Icon className="w-6 h-6 text-blue-600" />
+    </div>
+  </div>
+);
+
+const InsightCard = ({ title, content, type = "info" }) => {
+  const borderColors = {
+    info: "border-l-blue-500",
+    warning: "border-l-amber-500",
+    success: "border-l-green-500",
+    danger: "border-l-red-500"
+  };
+  
+  return (
+    <div className={`bg-white p-5 rounded-lg shadow-sm border border-gray-100 border-l-4 ${borderColors[type]} mb-4`}>
+      <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+        {type === 'warning' && <AlertCircle className="w-4 h-4 text-amber-500" />}
+        {type === 'success' && <TrendingUp className="w-4 h-4 text-green-500" />}
+        {title}
+      </h4>
+      <p className="text-sm text-gray-600 leading-relaxed">{content}</p>
+    </div>
+  );
+};
+
+export default function Dashboard() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex font-sans">
+      
+      {/* Sidebar - Mobile Responsive */}
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-white transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0`}>
+        <div className="p-6 flex items-center justify-between">
+          <h1 className="text-xl font-bold tracking-wider flex items-center gap-2">
+            <LayoutDashboard className="w-6 h-6 text-blue-400" />
+            ANALYTICS
+          </h1>
+          <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-400 hover:text-white">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+        
+        <nav className="mt-6 px-4 space-y-2">
+          <button 
+            onClick={() => setActiveTab('overview')}
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors ${activeTab === 'overview' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
+          >
+            <LayoutDashboard className="w-5 h-5" />
+            Genel Bakış
+          </button>
+          <button 
+            onClick={() => setActiveTab('sales')}
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors ${activeTab === 'sales' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
+          >
+            <TrendingUp className="w-5 h-5" />
+            Satış Analizi
+          </button>
+          <button 
+            onClick={() => setActiveTab('customers')}
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors ${activeTab === 'customers' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
+          >
+            <Users className="w-5 h-5" />
+            Müşteri Segmentasyonu
+          </button>
+          <button 
+            onClick={() => setActiveTab('predictions')}
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors ${activeTab === 'predictions' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
+          >
+            <PieChart className="w-5 h-5" />
+            Tahminleme Modelleri
+          </button>
+        </nav>
+        
+        <div className="absolute bottom-6 px-6 w-full">
+          <div className="bg-slate-800 p-4 rounded-lg">
+            <p className="text-xs text-slate-400 mb-1">Veri Kalitesi</p>
+            <div className="flex items-center gap-2 text-green-400 text-sm font-medium">
+              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+              Temiz & Doğrulanmış
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto h-screen">
+        {/* Header */}
+        <header className="bg-white shadow-sm sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button onClick={() => setSidebarOpen(true)} className="md:hidden text-gray-600 hover:text-gray-900">
+              <Menu className="w-6 h-6" />
+            </button>
+            <div>
+              <h2 className="text-xl font-bold text-gray-800">Yönetici Paneli</h2>
+              <p className="text-sm text-gray-500">Son Güncelleme: 30 Kasım 2025</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+             <button className="hidden md:flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium">
+              <FileText className="w-4 h-4" />
+              Raporu İndir
+            </button>
+            <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold border border-indigo-200">
+              YO
+            </div>
+          </div>
+        </header>
+
+        <div className="p-6 max-w-7xl mx-auto space-y-6">
+          
+          {/* KPI Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatCard 
+              title="En Yüksek Gelir (Şube)" 
+              value="$110,568" 
+              subtext="Şube C (Naypyitaw)" 
+              icon={DollarSign} 
+              trend="up"
+            />
+            <StatCard 
+              title="Gelecek Hafta Tahmini" 
+              value="$5,011" 
+              subtext="Yiyecek & İçecek Kategorisi" 
+              icon={TrendingUp} 
+              trend="up"
+            />
+            <StatCard 
+              title="En Kârlı Ürün" 
+              value="Food & Bev." 
+              subtext="$2,673 Brüt Gelir" 
+              icon={ShoppingBag} 
+              trend="up"
+            />
+            <StatCard 
+              title="Zirve Satış Saati" 
+              value="19:00-20:00" 
+              subtext="$39,699 Toplam İşlem" 
+              icon={Clock} 
+              trend="neutral"
+            />
+          </div>
+
+          {/* Charts Row 1 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Branch Performance */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Şube Bazlı Gelir Performansı</h3>
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={branchRevenueData} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                    <XAxis type="number" tickFormatter={(value) => `$${value/1000}k`} />
+                    <YAxis dataKey="name" type="category" width={100} />
+                    <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, 'Gelir']} />
+                    <Bar dataKey="revenue" fill="#4F46E5" radius={[0, 4, 4, 0]} barSize={30} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-sm text-gray-500 mt-2">Şube C (Naypyitaw), diğer şubeleri yaklaşık $4k farkla geçerek lider konumda.</p>
+            </div>
+
+            {/* Gender Preferences */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Cinsiyete Göre Ürün Tercihleri</h3>
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={genderPreferenceData}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="category" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="Kadin" name="Kadın" fill="#EC4899" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Erkek" name="Erkek" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-sm text-gray-500 mt-2">Kadınlar Moda Aksesuarlarını, Erkekler Elektronik Aksesuarlarını tercih ediyor.</p>
+            </div>
+          </div>
+
+          {/* Charts Row 2 */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+             {/* Hourly Trends */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Saatlik Satış Yoğunluğu</h3>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={hourlySalesData}>
+                    <defs>
+                      <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="hour" />
+                    <YAxis tickFormatter={(val) => `$${val/1000}k`} />
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, 'Satış']} />
+                    <Area type="monotone" dataKey="sales" stroke="#10B981" fillOpacity={1} fill="url(#colorSales)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="mt-4 flex items-center gap-2 text-sm text-gray-600 bg-green-50 p-3 rounded-lg border border-green-100">
+                <Clock className="w-4 h-4 text-green-600" />
+                <span>Personel planlamasını <strong>19:00 - 20:00</strong> aralığında maksimize edin.</span>
+              </div>
+            </div>
+
+            {/* Payment Methods */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Şube Bazlı Ödeme Yöntemleri</h3>
+              <div className="space-y-6">
+                {paymentMethodData.map((branch, index) => (
+                  <div key={index}>
+                    <p className="text-sm font-semibold text-gray-700 mb-1">{branch.name}</p>
+                    <div className="flex h-4 rounded-full overflow-hidden bg-gray-100 text-xs text-white text-center leading-4">
+                      <div style={{ width: `${branch.Ewallet}%` }} className="bg-purple-500 tooltip" title={`E-Wallet: ${branch.Ewallet}%`}></div>
+                      <div style={{ width: `${branch.Cash}%` }} className="bg-green-500 tooltip" title={`Nakit: ${branch.Cash}%`}></div>
+                      <div style={{ width: `${branch.Credit}%` }} className="bg-blue-500 tooltip" title={`Kredi Kartı: ${branch.Credit}%`}></div>
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-400 mt-1 px-1">
+                      <span className="text-purple-600">E-Cüzdan ({branch.Ewallet}%)</span>
+                      <span className="text-green-600">Nakit ({branch.Cash}%)</span>
+                      <span className="text-blue-600">Kredi Kartı ({branch.Credit}%)</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-400 mt-6 pt-4 border-t">
+                * Şube C'de Nakit, Şube A'da E-Cüzdan baskın.
+              </p>
+            </div>
+          </div>
+
+          {/* Analysis & Insights Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Gelişmiş Analitik Bulgular</h3>
+              <InsightCard 
+                type="warning"
+                title="Müşteri Memnuniyeti Tahmini (R-Squared: -0.1725)"
+                content="Mevcut model, müşteri puanlarını tahmin etmekte yetersiz kalıyor. Toplam harcama ve alışveriş saati etkili faktörler olsa da, memnuniyeti açıklamak için personel etkileşimi veya bekleme süreleri gibi yeni veriler toplanmalıdır."
+              />
+              <InsightCard 
+                type="success"
+                title="Satış Tahminleme Başarısı"
+                content="RandomForestRegressor modeli ile 'Yiyecek & İçecek' kategorisi için gelecek hafta tahmini başarıyla yapıldı. Beklenen ciro: $5,011. Model Hata Payı (MAE): ~$2,610."
+              />
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Aksiyon Planı & Hipotez</h3>
+              <InsightCard 
+                type="info"
+                title="Hipotez Testi: Üye vs. Normal Müşteri"
+                content="Üye müşteriler ($327.79) ile normal müşteriler ($318.12) arasında istatistiksel olarak anlamlı bir harcama farkı bulunamadı (p-value: 0.534). Üyelik programının faydaları yeniden gözden geçirilmelidir."
+              />
+              <div className="bg-slate-800 text-slate-100 p-5 rounded-lg shadow-lg">
+                <h4 className="font-bold flex items-center gap-2 mb-3 text-yellow-400">
+                  <TrendingUp className="w-5 h-5" />
+                  Önerilen Aksiyonlar
+                </h4>
+                <ul className="space-y-3 text-sm">
+                  <li className="flex gap-2">
+                    <span className="text-yellow-400 font-bold">•</span>
+                    Erkek müşteriler için elektronik reyonunda çapraz satış stratejileri geliştirin.
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-yellow-400 font-bold">•</span>
+                    Şube C'de nakit akışını yönetmek için kasa sayısını artırın.
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-yellow-400 font-bold">•</span>
+                    19:00 - 20:00 saatleri arasına özel 'Happy Hour' kampanyaları düzenleyerek yoğunluğu daha geniş bir zamana yaymayı deneyin.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  );
+}
